@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <fcgi_stdio.h>
+#include <string.h>
 #include "web.h"
 #include "url.h"
 
@@ -50,16 +51,17 @@ int htreq_init(htreq* r, char** envp) {
     //for(;*envp != NULL; envp++) {
     //    fprintf(stderr, "%s\n", *envp);
     //}
-    qslist* qs = qsparse("hello=one&hello=two&byebye=three");
-    qsval* v = qslist_get(qs, "hello");
+    char* rawqs = "aaa=one+and+two+and+three&hello=one&hello=two&byebye=three&hello=third%40&hello=fourth+whoa";
+    qslist* qs = qsparse(rawqs, strlen(rawqs));
+    /*qsval* v = qslist_get(qs, "hello");
     if(v) {
         lnode* n = v->vals->head;
         while(n) {
             fprintf(stderr, "%s:%s\n", v->key, (char*)n->cargo);
             n = n->next;
         }
-    } else fprintf(stderr, "no 'hello' val");
-    fprintf(stderr, "get_one(hello): %s\n", (char*)qslist_get_one(qs, "hello"));
+    } else fprintf(stderr, "no 'hello' val");*/
+    //fprintf(stderr, "get_one(hello): %s\n", (char*)qslist_get_one(qs, "hello"));
     qslist_del(qs);
     return 0;
 }

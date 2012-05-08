@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <string.h>
 #include <stdio.h>
+#include <ctype.h>
 
 int is_big_endian(void) {
     static int big_endian = -1;
@@ -61,4 +62,17 @@ double lltod(uint64_t ll) {
     } u;
     u.ull = ll;
     return u.d;
+}
+
+int xtoi(char x) {
+    int i = -1;
+    if(!isxdigit(x)) return i;
+    if(x >= '0' && x <= '9') {
+        i = x - '0';
+    } else if(x >= 'A' && x <= 'Z') {
+        i = 10 + x - 'A';
+    } else if(x >= 'a' && x <= 'z') {
+        i = 10 + x - 'a';
+    }
+    return i;
 }

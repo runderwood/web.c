@@ -25,6 +25,9 @@ qsval* qslist_get(qslist* qs, const char* k);
 const char* qslist_get_one(qslist* qs, const char* k);
 int qslist_val_add(qslist* qs, const char* k, const char* v);
 
-qslist* qsparse(const char* qstr);
+char* urldecode(const char* str, int len, int* declen);
+char* urlencode(const char* str, int len, int* enclen);
+
+qslist* qsparse(const char* qstr, int len);
 
 #endif
