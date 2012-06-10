@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
+#include <assert.h>
 #include <fcgi_stdio.h>
 #include <string.h>
 #include "web.h"
@@ -34,9 +35,11 @@ void webapp_log(webapp* app, const char* fmt, ...) {
 
 int webapp_serve(webapp* app) {
     while(FCGI_Accept() >= 0) {
-        webapp_log(app, "request!");
+        //webapp_log(app, "request!");
         htreq* r = htreq_new();
-        htreq_init(r, environ);
+        htreq_init(r);
+        //if(r == NULL) printf("r is null.\n");
+        //else printf("uri: %d\n", strlen(r->uri));
         htreq_del(r);
     }
     return 0;
@@ -47,12 +50,23 @@ htreq* htreq_new() {
     return req;
 }
 
-int htreq_init(htreq* r, char** envp) {
-    //for(;*envp != NULL; envp++) {
-    //    fprintf(stderr, "%s\n", *envp);
-    //}
-    char* rawqs = "aaa=one+and+two+and+three&hello=one&hello=two&byebye=three&hello=third%40&hello=fourth+whoa";
-    qslist* qs = qsparse(rawqs, strlen(rawqs));
+int htreq_init(htreq* r) {
+    const char *htmethod = getenv("REQUEST_METHOD");
+    assert(htmethod);
+    HTMETHODVAL(htmethod, r->method);
+    const char* uri = getenv("PATH_INFO");
+    assert(uri);
+    int uri_len = -1;
+    if(uri != NULL) {
+        uri_len = strlen(uri);
+    }
+    if(uri_len >= 0) {
+        r->uri = malloc(uri_len+1);
+        strcpy(r->uri, uri);
+        r->uri[uri_len] = '\0';
+    }
+    //char* rawqs = "aaa=one+and+two+and+three&hello=one&hello=two&byebye=three&hello=third%40&hello=fourth+whoa";
+    //qslist* qs = qsparse(rawqs, strlen(rawqs));
     /*qsval* v = qslist_get(qs, "hello");
     if(v) {
         lnode* n = v->vals->head;
@@ -62,11 +76,13 @@ int htreq_init(htreq* r, char** envp) {
         }
     } else fprintf(stderr, "no 'hello' val");*/
     //fprintf(stderr, "get_one(hello): %s\n", (char*)qslist_get_one(qs, "hello"));
-    qslist_del(qs);
+    //qslist_del(qs);
     return 0;
 }
 
 void htreq_del(htreq* r) {
+    if(r->uri != NULL) free(r->uri);
+    r->uri = NULL;
     free(r);
     return;
 }
